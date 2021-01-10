@@ -20,6 +20,7 @@ The output plot can be customized with the following command line arguments.
 - `--img-file IMG_FILE`         : Output file name.
 - -`-data-file DATA_FILE`       : Data file used for input. This can be helpful to avoid having to regenerate data.
 - `--figsize FIGSIZE`           : Dimensions for output figure in inches. Must be 2 values separated by a comma. Defaults to (16, 16).   
+- `--dpi DPI`                   : Dots per inch of output figure. High quality figures should be saved as `filename.svg` with a dpi of 1200. Defaults to 100.   
 - `-i`, `--show-i-curves`           : Flag to indicate if the "i" curves should be plotted on the output.
 - `-u`, `--show-upper-lower-curves` : Flag to indicate if the "upper" and "lower" curves should be plotted on the output.
 
@@ -27,4 +28,4 @@ The output plot can be customized with the following command line arguments.
     python create_plots.py -xl 1 -xh 100 -yl 0 -yh 4000 --img-file example-output.png --data-file example-data.csv --figsize 16,32 -i -u
 
 This creates the following plot in `example-output.png` as well as the file `example-data.csv`.
-![Example Plot](./example-output.png)
+![Example Plot](./example-output.svg)

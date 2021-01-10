@@ -15,7 +15,8 @@ LIGHT_BLUE = '#05bdf5'
 
 def create_plot(min_x: int = None, max_x: int = None, min_y: int = None, max_y: int = None,
                 data_csv: str = 'data/default_data.csv', img_file: str = None,
-                plot_2i3i4i: bool = False, plot_upper_lower_curves: bool = False, figsize: (int, int) = (16, 16)):
+                plot_2i3i4i: bool = False, plot_upper_lower_curves: bool = False, figsize: (int, int) = (16, 16),
+                dpi: int = 100):
     if min_x < 1:
         raise ValueError('min_x must be >= 1')
     if min_y < 0:
@@ -87,8 +88,10 @@ def create_plot(min_x: int = None, max_x: int = None, min_y: int = None, max_y: 
     [i.set_linewidth(3) for i in ax.spines.values()]
     [i.set_edgecolor('gray') for i in ax.spines.values()]
 
+    format = img_file.split('.')[-1]
+
     if img_file:
-        plt.savefig(img_file, bbox_inches='tight')
+        plt.savefig(img_file, bbox_inches='tight', format=format, dpi=dpi)
     else:
         plt.show()
 
@@ -134,7 +137,7 @@ def figsize(s):
 
 def init_argparse() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        usage="python %(prog)s [--x_min] [--x_max] [--y_min] [--y_max] [--img_file] [--data_file] [--figsize] [--show-i-curves]",
+        usage="python %(prog)s [--x_min] [--x_max] [--y_min] [--y_max] [--img_file] [--data_file] [--figsize] [--show-i-curves] [--dpi]",
         description="Create results from nim game."
     )
     parser.add_argument('-xl', '--x_min', help='minimum x value displayed on output', default=1, type=int)
@@ -150,6 +153,9 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('-u', '--show-upper-lower-curves',
                         help='if true, output will display the upper and lower curves',
                         dest='show_upper_lower_curves', action='store_true')
+    parser.add_argument('-d', '--dpi',
+                        help='dots per inch (dpi) for output figure',
+                        default=100, type=int)
     return parser
 
 
@@ -188,5 +194,5 @@ if __name__ == "__main__":
     img_file = args.img_file if args.img_file else f'imgs/{y_min}-{y_max}_{x_min}-{x_max}.png'
     print(f'Generating plot...')
     create_plot(x_min, x_max, y_min, y_max, img_file=img_file, figsize=args.figsize, data_csv=data_file,
-                plot_2i3i4i=args.show_i_curves, plot_upper_lower_curves=args.show_upper_lower_curves)
+                plot_2i3i4i=args.show_i_curves, plot_upper_lower_curves=args.show_upper_lower_curves, dpi=args.dpi)
     print(f'Plot available at {img_file}')
