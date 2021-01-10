@@ -1,6 +1,11 @@
+import argparse
+import os.path
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import colors
+
+from generate_data import get_results
 
 FONT_SIZE = 24
 PINK = '#f505d5'
@@ -8,18 +13,18 @@ ORANGE = '#eb7413'
 LIGHT_BLUE = '#05bdf5'
 
 
-def create_plot(min_x: int = None, max_x: int = None, min_y: int = None, max_y: int = None, file_name: str = None,
+def create_plot(min_x: int = None, max_x: int = None, min_y: int = None, max_y: int = None,
+                data_csv: str = 'data/default_data.csv', img_file: str = None,
                 plot_2i3i4i: bool = False, plot_upper_lower_curves: bool = False, figsize: (int, int) = (16, 16)):
     if min_x < 1:
-        raise IndexError('min_x must be >= 1')
+        raise ValueError('min_x must be >= 1')
     if min_y < 0:
-        raise IndexError('min_y must be >= 0')
+        raise ValueError('min_y must be >= 0')
     if min_x >= max_x:
-        raise IndexError('min_x must be < max_x')
+        raise ValueError('min_x must be < max_x')
     if min_y >= max_y:
-        raise IndexError('min_y must be ><max_y')
+        raise ValueError('min_y must be ><max_y')
 
-    data_csv = 'test_data.csv'
     data = np.genfromtxt(data_csv, delimiter=',')
     data = data[::-1]
     if None not in [min_x, max_x, min_y, max_y]:
@@ -82,8 +87,8 @@ def create_plot(min_x: int = None, max_x: int = None, min_y: int = None, max_y: 
     [i.set_linewidth(3) for i in ax.spines.values()]
     [i.set_edgecolor('gray') for i in ax.spines.values()]
 
-    if file_name:
-        plt.savefig(file_name, bbox_inches='tight', dpi=1000)
+    if img_file:
+        plt.savefig(img_file, bbox_inches='tight')
     else:
         plt.show()
 
@@ -119,12 +124,64 @@ def get_4i_curve(x):
     return (1 / 2) * x ** 2 + (1 / 4) * x - (3 / 2)
 
 
-def main():
-    create_plot(50, 100, 3500, 4000, 'imgs/50-100_3500-4000_upper_lower_curves_V1.png', plot_upper_lower_curves=True)
+def figsize(s):
+    try:
+        x, y = map(int, s.split(','))
+        return x, y
+    except:
+        raise argparse.ArgumentTypeError("figsize must be x,y")
 
 
-# TODOS:
-#   - imgs/1-100_0-4000_V1.png
+def init_argparse() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        usage="python %(prog)s [--x_min] [--x_max] [--y_min] [--y_max] [--img_file] [--data_file] [--figsize] [--show-i-curves]",
+        description="Create results from nim game."
+    )
+    parser.add_argument('-xl', '--x_min', help='minimum x value displayed on output', default=1, type=int)
+    parser.add_argument('-xh', '--x_max', help='maximum x value displayed on output', default=100, type=int)
+    parser.add_argument('-yl', '--y_min', help='minimum y value displayed on output', default=0, type=int)
+    parser.add_argument('-yh', '--y_max', help='maximum y value displayed on output', default=2000, type=int)
+    parser.add_argument('--img_file', help='filename of output img', type=str)
+    parser.add_argument('--data_file', help='filename of data to read instead of generating new data', type=str)
+    parser.add_argument('--figsize', help='tuple of width, height in inches', type=figsize, nargs=2, default=(16, 16))
+    parser.add_argument('-i', '--show-i-curves', dest='show_i_curves', help='if true, output will display i curves',
+                        action='store_true')
+    parser.add_argument('-u', '--show-upper-lower-curves',
+                        help='if true, output will display the upper and lower curves',
+                        dest='show_upper_lower_curves', action='store_true')
+    return parser
 
 
-main()
+def validate_input(x_min: int, x_max: int, y_min: int, y_max: int):
+    if x_min < 1: raise ValueError('x_min must be >= 1', x_min)
+    if x_min >= x_max: raise ValueError('x_min must be less than x_max', x_min, x_max)
+    if y_min < 0: raise ValueError('y_min must be >= 0', y_min)
+    if y_min >= y_max: raise ValueError('y_min must be <= y_max', y_min, y_max)
+
+
+if __name__ == "__main__":
+    parser = init_argparse()
+    args = parser.parse_args()
+    x_min = args.x_min
+    x_max = args.x_max
+    y_min = args.y_min
+    y_max = args.y_max
+
+    validate_input(x_min, x_max, y_min, y_max)
+
+    if not args.data_file:
+        data_file = f'data/{y_min}-{y_max}_{x_min}-{x_max}.csv'
+        if not os.path.isfile(data_file):
+            print('Generating data')
+            get_results(y_max, x_max, data_file)
+            print(f'Data wrote to: {data_file}')
+        else:
+            print(f'Using data from file: {data_file}')
+    else:
+        data_file = args.data_file
+
+    img_file = args.img_file if args.img_file else f'imgs/{y_min}-{y_max}_{x_min}-{x_max}.png'
+    print(f'Generating plot...')
+    create_plot(x_min, x_max, y_min, y_max, img_file=img_file, figsize=args.figsize, data_csv=data_file,
+                plot_2i3i4i=args.show_i_curves, plot_upper_lower_curves=args.show_upper_lower_curves)
+    print(f'Plot available at {img_file}')

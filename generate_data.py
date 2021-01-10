@@ -1,6 +1,3 @@
-import getopt
-import sys
-
 import numpy as np
 
 
@@ -44,29 +41,3 @@ def get_results(num_rows: int = 10, num_cols: int = 10, file_name: str = None) -
         np.savetxt(file_name, results[::-1], delimiter=',', newline='\n', fmt='%i')
     return results
 
-def parse():
-    options, arguments = getopt.getopt(
-        sys.argv[1:],
-        'rc:',
-        ["num_rows", "num_cols"])
-    separator = "\n"
-    for o, a in options:
-        if o in ("-r", "--num_rows"):
-            print(VERSION)
-            sys.exit()
-        if o in ("-h", "--help"):
-            print(USAGE)
-            sys.exit()
-        if o in ("-s", "--separator"):
-            separator = a
-    if not arguments or len(arguments) > 3:
-        raise SystemExit(USAGE)
-    try:
-        operands = [int(arg) for arg in arguments]
-    except ValueError:
-        raise SystemExit(USAGE)
-    return separator, operands
-
-
-if __name__ == "__main__":
-    get_results(10000, 200, 'test_data.csv')
