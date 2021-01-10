@@ -141,9 +141,10 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument('-xh', '--x_max', help='maximum x value displayed on output', default=100, type=int)
     parser.add_argument('-yl', '--y_min', help='minimum y value displayed on output', default=0, type=int)
     parser.add_argument('-yh', '--y_max', help='maximum y value displayed on output', default=2000, type=int)
-    parser.add_argument('--img_file', help='filename of output img', type=str)
-    parser.add_argument('--data_file', help='filename of data to read instead of generating new data', type=str)
-    parser.add_argument('--figsize', help='tuple of width, height in inches', type=figsize, nargs=2, default=(16, 16))
+    parser.add_argument('--img-file', help='filename of output img', dest='img_file', type=str)
+    parser.add_argument('--data-file', help='filename of data to read instead of generating new data', dest='data_file',
+                        type=str)
+    parser.add_argument('--figsize', help='tuple of width, height in inches', type=figsize, default=(16, 16))
     parser.add_argument('-i', '--show-i-curves', dest='show_i_curves', help='if true, output will display i curves',
                         action='store_true')
     parser.add_argument('-u', '--show-upper-lower-curves',
@@ -153,10 +154,10 @@ def init_argparse() -> argparse.ArgumentParser:
 
 
 def validate_input(x_min: int, x_max: int, y_min: int, y_max: int):
-    if x_min < 1: raise ValueError('x_min must be >= 1', x_min)
-    if x_min >= x_max: raise ValueError('x_min must be less than x_max', x_min, x_max)
-    if y_min < 0: raise ValueError('y_min must be >= 0', y_min)
-    if y_min >= y_max: raise ValueError('y_min must be <= y_max', y_min, y_max)
+    if x_min < 1: raise ValueError('x_min must be >= 1')
+    if x_min >= x_max: raise ValueError('x_min must be less than x_max')
+    if y_min < 0: raise ValueError('y_min must be >= 0')
+    if y_min >= y_max: raise ValueError('y_min must be <= y_max')
 
 
 if __name__ == "__main__":
@@ -169,16 +170,20 @@ if __name__ == "__main__":
 
     validate_input(x_min, x_max, y_min, y_max)
 
-    if not args.data_file:
-        data_file = f'data/{y_min}-{y_max}_{x_min}-{x_max}.csv'
-        if not os.path.isfile(data_file):
-            print('Generating data')
-            get_results(y_max, x_max, data_file)
-            print(f'Data wrote to: {data_file}')
-        else:
-            print(f'Using data from file: {data_file}')
+    if not os.path.isdir('data'):
+        print('Creating data directory.')
+        os.makedirs('data')
+    if not os.path.isdir('imgs'):
+        print('Creating imgs directory')
+        os.makedirs('imgs')
+
+    data_file = args.data_file if args.data_file else f'data/{y_min}-{y_max}_{x_min}-{x_max}.csv'
+    if not os.path.isfile(data_file):
+        print('Generating data')
+        get_results(y_max, x_max, data_file)
+        print(f'Data wrote to: {data_file}')
     else:
-        data_file = args.data_file
+        print(f'Using data from file: {data_file}')
 
     img_file = args.img_file if args.img_file else f'imgs/{y_min}-{y_max}_{x_min}-{x_max}.png'
     print(f'Generating plot...')
