@@ -116,15 +116,15 @@ def get_fig_dims(width, height):
 
 
 def get_2i_curve(x):
-    return x ** 2 - (5 / 2) * x + 1 / 2
+    return x ** 2 - (3 / 2) * x - 1
 
 
 def get_3i_curve(x):
-    return (2 / 3) * x ** 2 - (5 / 3) * x - 1
+    return (2 / 3) * x ** 2 + (2 / 3) * x - 2
 
 
 def get_4i_curve(x):
-    return (1 / 2) * x ** 2 + (1 / 4) * x - (3 / 2)
+    return (1 / 2) * x ** 2 + (3 / 4) * x - (3 / 4)
 
 
 def figsize(s):
