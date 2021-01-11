@@ -38,8 +38,8 @@ def create_plot(min_x: int = None, max_x: int = None, min_y: int = None, max_y: 
     ax.yaxis.set_tick_params(labelsize=24)
     ax.imshow(data, cmap=cmap, origin='lower')
 
-    ax.set_xlim([1, max_x - min_x])
-    ax.set_ylim([0, max_y - min_y])
+    ax.set_xlim([-.5, max_x - min_x + .5])
+    ax.set_ylim([-.5, max_y - min_y + .5])
 
     if plot_2i3i4i:
         x = np.linspace(min_x, max_x)
